@@ -1,43 +1,28 @@
 pipeline {
-    agent any
-
-    stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    // Checkout the source code that contains the Dockerfile
-                    checkout scm
-                }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                script {
-                    // Build a Docker image using the Docker CLI
-                    sh 'docker build -t my-docker-image .'
-                }
-            }
-        }
-
-        stage('Push') {
-            steps {
-                script {
-                    // Push the image to ECR
-                    sh 'docker push my-docker-image'
-                    // Note: You'll need to configure AWS credentials to push to ECR
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    // Deploy the image to a Docker server as a container
-                    sh 'docker run -d -p 8080:80 my-docker-image'
-                    // This command will deploy the image as a container listening on port 8080
-                }
-            }
-        }
-    }
+	agent any
+	environment {
+                ECR_URL="381491956966.dkr.ecr.us-east-1.amazonaws.com/custom"
+	}
+	stages {
+		stage ('Checkout') {
+			steps {
+				git branch: 'main', url: 'https://github.com/Akashcm731/simple-java-project.git'
+			}
+		}
+		stage ('Build Stage') {
+			steps {
+				sh 'docker build -t ${ECR_URL}:${BUILD_NUMBER} .'
+			}
+		}
+		stage ('Push Stage') {
+			steps {
+				sh 'docker push ${ECR_URL}:${BUILD_NUMBER}'
+			}
+		}
+		stage ('Deploy Stage') {
+			steps {
+				sh 'docker run -d --name cont_${BUILD_NUMBER} -p 8080:8080 ${ECR_URL}:${BUILD_NUMBER}'
+			}
+		}
+	}	
 }
