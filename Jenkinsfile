@@ -6,7 +6,7 @@ pipeline {
 	stages {
 		stage ('Checkout') {
 			steps {
-				git branch: 'main', url: 'https://github.com/Akashcm731/simple-java-project.git'
+				git branch: 'main', url: 'https://github.com/Akashcm731/java-example_war.git'
 			}
 		}
 		stage ('Build Stage') {
